@@ -468,11 +468,9 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	case "pkg.stats":
 		// Only keep the first response for "pkg.stats"
 		if len(items) > 0 {
-			for _, item := range items {
-				i, _ := item.Value.Int()
-				metrics[item.Key] = []MetricValue{{Value: float64(i)}}
-				break // Only keep the first response
-			}
+			firstItem := items[0]
+			i, _ := firstItem.Value.Int()
+			metrics[firstItem.Key] = []MetricValue{{Value: float64(i)}}
 		}
 	case "core.tcp_info":
 		fallthrough
