@@ -494,9 +494,7 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	if len(records) == 2 && records[0].Type == binrpc.TypeInt && records[0].Value.(int) == 500 {
 		return nil, fmt.Errorf(`invalid response for method "%s": [500] %s`, method, records[1].Value.(string))
 	} else if len(records) != 1 {
-		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d`,
-			method, 1, len(records),
-		)
+		return nil, fmt.Errorf(`[error] invalid response for method "%s", expected 1 record, got %d`, method, len(records))
 	}
 
 	// all methods implemented in this exporter return a struct
