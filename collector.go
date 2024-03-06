@@ -505,31 +505,21 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	switch method {
 	case "sl.stats", "pkg.stats", "tm.stats":
 		for _, item := range items {
-			i, err := item.Value.Int()
-			if err != nil {
-				return nil, err
-			}
-
-			if codeRegex.MatchString(item.Key) {
-				metrics["codes"] = append(metrics["codes"],
-					MetricValue{
-						Value: float64(i),
-						Labels: map[string]string{
-							"code": item.Key,
-						},
-					},
-				)
-			} else {
-				metrics[item.Key] = []MetricValue{{Value: float64(i)}}
+			switch val := item.Value.(type) {
+			case int:
+				metrics[item.Key] = []MetricValue{{Value: float64(val)}}
+			default:
+				return nil, fmt.Errorf("invalid value type for key %s in record", item.Key)
 			}
 		}
 	case "tls.info", "core.shmmem", "core.tcp_info", "dlg.stats_active", "core.uptime":
 		for _, item := range items {
-			i, err := item.Value.Int()
-			if err != nil {
-				return nil, err
+			switch val := item.Value.(type) {
+			case int:
+				metrics[item.Key] = []MetricValue{{Value: float64(val)}}
+			default:
+				return nil, fmt.Errorf("invalid value type for key %s in record", item.Key)
 			}
-			metrics[item.Key] = []MetricValue{{Value: float64(i)}}
 		}
 	case "dispatcher.list":
 		targets, err := parseDispatcherTargets(items)
@@ -555,7 +545,6 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 
     return metrics, nil
 }
-
 // parseDispatcherTargets parses the "dispatcher.list" result and returns a list of targets.
 func parseDispatcherTargets(items []binrpc.StructItem) ([]DispatcherTarget, error) {
 	var result []DispatcherTarget
