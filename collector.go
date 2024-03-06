@@ -490,21 +490,17 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 		return nil, err
 	}
 
-	// Utilisez seulement le premier enregistrement s'il y en a
-	var recordToUse binrpc.Record
-	if len(records) > 0 {
-		recordToUse = records[0]
-	} else {
-		return nil, fmt.Errorf(`invalid response for method "%s", no records found`, method)
+	// we expect just 1 record of type map
+	if len(records) == 2 && records[0].Type == binrpc.TypeInt && records[0].Value.(int) == 500 {
+		return nil, fmt.Errorf(`invalid response for method "%s": [500] %s`, method, records[1].Value.(string))
+	} else if len(records) != 1 or len(records) !=48 {
+		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d`,
+			method, 1, len(records),
+		)
 	}
 
-	// Vérifiez si le seul enregistrement est de type map
-	if recordToUse.Type != binrpc.TypeMap {
-		return nil, fmt.Errorf(`invalid response for method "%s", expected record of type map`, method)
-	}
-
-	// Obtenez les éléments struct de l'enregistrement
-	items, err := recordToUse.StructItems()
+	// all methods implemented in this exporter return a struct
+	items, err := records[0].StructItems()
 
 	if err != nil {
 		return nil, err
@@ -513,7 +509,11 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	metrics := make(map[string][]MetricValue)
 
 	switch method {
-	case "sl.stats", "pkg.stats", "tm.stats":
+	case "sl.stats":
+		fallthrough
+	case "pkg.stats":
+		fallthrough
+	case "tm.stats":
 		for _, item := range items {
 			i, _ := item.Value.Int()
 
@@ -531,7 +531,15 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 				metrics[item.Key] = []MetricValue{{Value: float64(i)}}
 			}
 		}
-	case "tls.info", "core.shmmem", "core.tcp_info", "dlg.stats_active", "core.uptime":
+	case "tls.info":
+		fallthrough
+	case "core.shmmem":
+		fallthrough
+	case "core.tcp_info":
+		fallthrough
+	case "dlg.stats_active":
+		fallthrough
+	case "core.uptime":
 		for _, item := range items {
 			i, _ := item.Value.Int()
 			metrics[item.Key] = []MetricValue{{Value: float64(i)}}
