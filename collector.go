@@ -490,8 +490,8 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 
 	log.Printf("Received records for method %s: %+v\n", method, records)
 
-	if len(records) != 1 {
-		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d`, method, 1, len(records))
+	if len(records) < 1 {
+		return nil, fmt.Errorf(`invalid response for method "%s", expected at least %d record(s), got %d`, method, 1, len(records))
 	}
 
 	firstRecord := records[0]
