@@ -225,8 +225,8 @@ var (
 	}
 
 	metricsList = map[string][]Metric{
-		"mod.stats core pkg": {
-			NewMetricGauge("Total", "Total used pkg memory for core module.", "mod.stats core pkg"),
+		"mod.stats": {
+			NewMetricGauge("Total", "Total used pkg memory for core module.", "mod.stats"),
 		},
 		"tm.stats": {
 			NewMetricGauge("current", "Current transactions.", "tm.stats"),
@@ -502,7 +502,7 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	switch method {
 	case "sl.stats":
 		fallthrough
-	case "mod.stats core pkg":
+	case "mod.stats":
 		fallthrough
 	case "tm.stats":
 		for _, item := range items {
