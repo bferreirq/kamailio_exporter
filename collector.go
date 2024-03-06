@@ -481,6 +481,8 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 		return nil, err
 	}
 
+	log.Printf("Received records for method %s: %+v\n", method, records)
+
 	// we expect just 1 record of type map
 	if len(records) == 2 && records[0].Type == binrpc.TypeInt && records[0].Value.(int) == 500 {
 		return nil, fmt.Errorf(`invalid response for method "%s": [500] %s`, method, records[1].Value.(string))
@@ -692,4 +694,20 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	ch <- c.up
 	ch <- c.totalScrapes
 	ch <- c.failedScrapes
+
+	func main() {
+		// ...
+	
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte(`<html>
+				<head><title>Kamailio Exporter</title></head>
+				<body>
+				<h1>Kamailio Exporter</h1>
+				<p><a href="` + *metricsPath + `">Metrics</a></p>
+				</body>
+				</html>`))
+		})
+		log.Printf("Starting Kamailio Exporter on %s...\n", *listenAddress)
+		log.Fatal(http.ListenAndServe(*listenAddress, nil))
+	}
 }
