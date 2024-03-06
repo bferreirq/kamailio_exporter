@@ -18,7 +18,7 @@ import (
 )
 
 /* Sample output
-kamcmd> mod.stats core pkg
+kamcmd> mod.stats core all core pkg
 Module: core
 {
         init_io_wait(507): 3880
@@ -213,7 +213,7 @@ var (
 
 	// implemented RPC methods
 	availableMethods = []string{
-		"mod.stats",
+		"mod.stats core all core all",
 		"tm.stats",
 		"sl.stats",
 		"core.shmmem",
@@ -225,8 +225,8 @@ var (
 	}
 
 	metricsList = map[string][]Metric{
-		"mod.stats": {
-			NewMetricGauge("Total", "Total used pkg memory for core module.", "mod.stats"),
+		"mod.stats core all": {
+			NewMetricGauge("Total", "Total used pkg memory for core module.", "mod.stats core all"),
 		},
 		"tm.stats": {
 			NewMetricGauge("current", "Current transactions.", "tm.stats"),
@@ -502,7 +502,7 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	switch method {
 	case "sl.stats":
 		fallthrough
-	case "mod.stats":
+	case "mod.stats core all":
 		fallthrough
 	case "tm.stats":
 		for _, item := range items {
