@@ -237,7 +237,6 @@ var (
 			NewMetricGauge("total_frags", "Total used pkg memory for core module.", "pkg.stats"),
 			NewMetricGauge("desc", "Total used pkg memory for core module.", "pkg.stats"),
 		},
-	metricsList = map[string][]Metric{
 		"tm.stats": {
 			NewMetricGauge("current", "Current transactions.", "tm.stats"),
 			NewMetricGauge("waiting", "Waiting transactions.", "tm.stats"),
