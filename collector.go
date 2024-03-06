@@ -19,6 +19,73 @@ import (
 
 /* Sample output
 
+kamcmd> mod.stats core pkg
+Module: core
+{
+        init_io_wait(516): 9976
+        init_io_wait(469): 19944
+        fix_match_rve(3143): 64
+        fix_param(1144): 448
+        init_modules(1010): 16
+        rpc_hash_add(151): 2048
+        cnt_hash_add(394): 2048
+        register_select_table(458): 32
+        sr_wtimer_add(373): 40
+        sr_wtimer_init(351): 136
+        cfg_declare(50): 3480
+        init_dst_set(93): 32296
+        cfg_new_group(79): 808
+        fix_sock_str(500): 400
+        grp_hash_add(241): 656
+        route_new_list(202): 32
+        fix_hostname(1688): 72
+        rval_get_str(1293): 168
+        mk_action(118): 1624
+        mk_rval_expr2(2783): 6984
+        mk_rval_expr_v(2640): 10656
+        tr_new(1730): 48
+        parse_params2(593): 336
+        set_mod_param_regex(139): 640
+        mk_rval_expr_v(2653): 32
+        subst_str(516): 48
+        set_mod_param_regex(156): 80
+        add_callback(59): 368
+        pv_cache_add(349): 912
+        pv_parse_format(1173): 256
+        tr_table_add(1959): 400
+        register_module(257): 30240
+        register_module(240): 3248
+        pkg_str_dup(961): 248
+        ksr_locate_module(427): 1640
+        new_sock_info(304): 72
+        new_sock_info(299): 2000
+        yyparse(678): 120
+        yyparse(2068): 120
+        get_hdr_field(118): 240
+        parse_headers(328): 64
+        subst_parser(301): 48
+        subst_parser(291): 288
+        subst_parser(274): 128
+        pp_subst_add(87): 48
+        sr_push_yy_state(1938): 32
+        sr_push_yy_state(1928): 16
+        addstr(1681): 19304
+        rpc_hash_add(105): 26152
+        str_hash_alloc(59): 512
+        pv_table_add(236): 19888
+        init_nonsip_hooks(43): 24
+        fix_socket_list(1897): 136
+        route_add(127): 384
+        str_hash_alloc(59): 768
+        init_rlist(149): 72
+        pp_define(2070): 528
+        pv_init_buffer(2139): 327680
+        pv_init_buffer(2129): 320
+        init_counters(125): 128
+        cnt_hash_add(341): 28552
+        str_hash_alloc(59): 1280
+        Total: 559328
+}
 kamcmd> tm.stats
 {
         current: 1
@@ -134,6 +201,7 @@ var (
 
 	// implemented RPC methods
 	availableMethods = []string{
+		"pkg.stats",
 		"tm.stats",
 		"sl.stats",
 		"core.shmmem",
@@ -145,6 +213,17 @@ var (
 	}
 
 	metricsList = map[string][]Metric{
+		"pkg.stats": {
+			NewMetricGauge("entry", "Entry.", "pkg.stats"),
+			NewMetricGauge("pid", "PID of processus.", "pkg.stats"),
+			NewMetricCounter("rank", "Rank of processus.", "pkg.stats"),
+			NewMetricCounter("used", "Used pkg memory.", "pkg.stats"),
+			NewMetricCounter("free", "Free pkg memory.", "pkg.stats"),
+			NewMetricCounter("real_used", "Real used of pkg memory.", "pkg.stats"),
+			NewMetricCounter("total_size", "Total size of pkg memory.", "pkg.stats"),
+			NewMetricCounter("total_frags", "Total frags of pkg memory.", "pkg.stats"),
+			NewMetricCounter("desc", "Description of processus.", "pkg.stats"),
+		},
 		"tm.stats": {
 			NewMetricGauge("current", "Current transactions.", "tm.stats"),
 			NewMetricGauge("waiting", "Waiting transactions.", "tm.stats"),
@@ -440,6 +519,8 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	case "tls.info":
 		fallthrough
 	case "core.shmmem":
+		fallthrough
+	case "pkg.stats":
 		fallthrough
 	case "core.tcp_info":
 		fallthrough
