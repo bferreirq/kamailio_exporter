@@ -491,35 +491,26 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 
 	log.Printf("Received records for method %s: %+v\n", method, records)
 
-	// we expect just 1 record of type map
-	if len(records) == 2 && records[0].Type == binrpc.TypeInt && records[0].Value.(int) == 500 {
-		return nil, fmt.Errorf(`invalid response for method "%s": [500] %s`, method, records[1].Value.(string))
-	} else if len(records) != 1 {
-		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d: [%d] %s`,
-		method, 1, len(records), records[0].Value.(int), records[0].Value.(string),
-		)
+	if len(records) != 1 {
+		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d`, method, 1, len(records))
 	}
 
-	// all methods implemented in this exporter return a struct
 	items, err := records[0].StructItems()
-
 	if err != nil {
 		return nil, err
 	}
 
-	metrics := make(map[string][]MetricValue)
+metrics := make(map[string][]MetricValue)
 
-	switch method {
-	case "sl.stats":
-		fallthrough
-	case "pkg.stats":
-		fallthrough
-	case "tm.stats":
+switch method {
+	case "sl.stats", "pkg.stats", "tm.stats":
 		for _, item := range items {
-			i, _ := item.Value.Int()
+			i, err := item.Value.Int()
+			if err != nil {
+				return nil, err
+			}
 
 			if codeRegex.MatchString(item.Key) {
-				// this item is a "code" statistic, eg "200" or "6xx"
 				metrics["codes"] = append(metrics["codes"],
 					MetricValue{
 						Value: float64(i),
@@ -532,28 +523,18 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 				metrics[item.Key] = []MetricValue{{Value: float64(i)}}
 			}
 		}
-	case "tls.info":
-		fallthrough
-	case "core.shmmem":
-		fallthrough
-	case "core.tcp_info":
-		fallthrough
-	case "dlg.stats_active":
-		fallthrough
-	case "core.uptime":
+	case "tls.info", "core.shmmem", "core.tcp_info", "dlg.stats_active", "core.uptime":
 		for _, item := range items {
-			i, _ := item.Value.Int()
+			i, err := item.Value.Int()
+			if err != nil {
+				return nil, err
+			}
 			metrics[item.Key] = []MetricValue{{Value: float64(i)}}
 		}
 	case "dispatcher.list":
 		targets, err := parseDispatcherTargets(items)
-
 		if err != nil {
 			return nil, err
-		}
-
-		if len(targets) == 0 {
-			break
 		}
 
 		for _, target := range targets {
@@ -568,9 +549,11 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 
 			metrics["target"] = append(metrics["target"], mv)
 		}
-	}
+	default:
+        return nil, fmt.Errorf("unsupported method: %s", method)
+    }
 
-	return metrics, nil
+    return metrics, nil
 }
 
 // parseDispatcherTargets parses the "dispatcher.list" result and returns a list of targets.
