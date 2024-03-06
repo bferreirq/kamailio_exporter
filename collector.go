@@ -491,29 +491,18 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	log.Printf("Received records for method %s: %+v\n", method, records)
 
 	if len(records) != 1 {
-		firstRecord := records[0] // Récupérer le premier enregistrement
+		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d`, method, 1, len(records))
+	}
 
-		items, err := firstRecord.StructItems()
-		if err != nil {
-			return nil, err
-		}
-
-		if len(items) > 0 {
-			firstItem := items[0]
-			i, ok := firstItem.Value.(int)
-			if !ok {
-				return nil, fmt.Errorf("conversion to int failed")
-			}
-
-			return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d: [%d] %s`,
-				method, 1, len(records), i, firstItem.Key,
-			)
-		}
+	firstRecord := records[0]
+	items, err := firstRecord.StructItems()
+	if err != nil {
+		return nil, err
 	}
 
 	metrics := make(map[string][]MetricValue)
 
-switch method {
+	switch method {
 	case "sl.stats", "pkg.stats", "tm.stats":
 		for _, item := range items {
 			i, err := item.Value.Int()
