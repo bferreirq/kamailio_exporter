@@ -18,6 +18,7 @@ import (
 )
 
 /* Sample output
+
 kamcmd> pkg.stats
 Module: core
 {
@@ -236,6 +237,7 @@ var (
 			NewMetricGauge("total_frags", "Total used pkg memory for core module.", "pkg.stats"),
 			NewMetricGauge("desc", "Total used pkg memory for core module.", "pkg.stats"),
 		},
+	metricsList = map[string][]Metric{
 		"tm.stats": {
 			NewMetricGauge("current", "Current transactions.", "tm.stats"),
 			NewMetricGauge("waiting", "Waiting transactions.", "tm.stats"),
@@ -481,6 +483,7 @@ func (c *Collector) scrape(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
+// scrapeMethod will return metrics for one method.
 func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error) {
 	records, err := c.fetchBINRPC(method)
 
@@ -488,14 +491,18 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 		return nil, err
 	}
 
-	log.Printf("Received records for method %s: %+v\n", method, records)
-
-	if len(records) < 1 {
-		return nil, fmt.Errorf(`invalid response for method "%s", expected at least %d record(s), got %d`, method, 1, len(records))
+	// we expect just 1 record of type map
+	if len(records) == 2 && records[0].Type == binrpc.TypeInt && records[0].Value.(int) == 500 {
+		return nil, fmt.Errorf(`invalid response for method "%s": [500] %s`, method, records[1].Value.(string))
+	} else if len(records) != 1 {
+		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d`,
+			method, 1, len(records),
+		)
 	}
 
-	firstRecord := records[0]
-	items, err := firstRecord.StructItems()
+	// all methods implemented in this exporter return a struct
+	items, err := records[0].StructItems()
+
 	if err != nil {
 		return nil, err
 	}
@@ -503,37 +510,67 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	metrics := make(map[string][]MetricValue)
 
 	switch method {
-	case "sl.stats", "pkg.stats", "tm.stats":
+	case "sl.stats":
+		fallthrough
+	case "pkg.stats":
+		fallthrough
+	case "tm.stats":
 		for _, item := range items {
-			switch val := item.Value.(type) {
-			case int:
-				metrics[item.Key] = []MetricValue{{Value: float64(val)}}
-			case binrpc.Record:
-				// Traiter la valeur de type binrpc.Record si nécessaire
-				// Par exemple, extraire des informations spécifiques de cet enregistrement
-			default:
-				return nil, fmt.Errorf("unsupported value type for key %s in record", item.Key)
+			i, _ := item.Value.Int()
+
+			if codeRegex.MatchString(item.Key) {
+				// this item is a "code" statistic, eg "200" or "6xx"
+				metrics["codes"] = append(metrics["codes"],
+					MetricValue{
+						Value: float64(i),
+						Labels: map[string]string{
+							"code": item.Key,
+						},
+					},
+				)
+			} else {
+				metrics[item.Key] = []MetricValue{{Value: float64(i)}}
 			}
 		}
-	case "tls.info", "core.shmmem", "core.tcp_info", "dlg.stats_active", "core.uptime":
+	case "tls.info":
+		fallthrough
+	case "core.shmmem":
+		fallthrough
+	case "core.tcp_info":
+		fallthrough
+	case "dlg.stats_active":
+		fallthrough
+	case "core.uptime":
 		for _, item := range items {
-			switch val := item.Value.(type) {
-			case int:
-				metrics[item.Key] = []MetricValue{{Value: float64(val)}}
-			case binrpc.Record:
-				// Traiter la valeur de type binrpc.Record si nécessaire
-				// Par exemple, extraire des informations spécifiques de cet enregistrement
-			default:
-				return nil, fmt.Errorf("unsupported value type for key %s in record", item.Key)
-			}
+			i, _ := item.Value.Int()
+			metrics[item.Key] = []MetricValue{{Value: float64(i)}}
 		}
 	case "dispatcher.list":
-        // Logique de traitement pour le cas "dispatcher.list"
-	default:
-        return nil, fmt.Errorf("unsupported method: %s", method)
-    }
+		targets, err := parseDispatcherTargets(items)
 
-    return metrics, nil
+		if err != nil {
+			return nil, err
+		}
+
+		if len(targets) == 0 {
+			break
+		}
+
+		for _, target := range targets {
+			mv := MetricValue{
+				Value: 1,
+				Labels: map[string]string{
+					"uri":   target.URI,
+					"flags": target.Flags,
+					"setid": strconv.Itoa(target.SetID),
+				},
+			}
+
+			metrics["target"] = append(metrics["target"], mv)
+		}
+	}
+
+	return metrics, nil
 }
 
 // parseDispatcherTargets parses the "dispatcher.list" result and returns a list of targets.
