@@ -227,15 +227,15 @@ var (
 
 	metricsList = map[string][]Metric{
 		"pkg.stats": {
-			NewMetricGauge("entry", "Total used pkg memory for core module.", "pkg.stats"),
-			NewMetricGauge("pid", "Total used pkg memory for core module.", "pkg.stats"),
-			NewMetricGauge("rank", "Total used pkg memory for core module.", "pkg.stats"),
-			NewMetricGauge("used", "Total used pkg memory for core module.", "pkg.stats"),
-			NewMetricGauge("free", "Total used pkg memory for core module.", "pkg.stats"),
-			NewMetricGauge("real_used", "Total used pkg memory for core module.", "pkg.stats"),
-			NewMetricGauge("total_size", "Total used pkg memory for core module.", "pkg.stats"),
-			NewMetricGauge("total_frags", "Total used pkg memory for core module.", "pkg.stats"),
-			NewMetricGauge("desc", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("entry", "Number of entry.", "pkg.stats"),
+			NewMetricGauge("pid", "PID of process.", "pkg.stats"),
+			NewMetricGauge("rank", "Rank of process.", "pkg.stats"),
+			NewMetricGauge("used", "Used PKG memory for main process.", "pkg.stats"),
+			NewMetricGauge("free", "Free PKG memory for main process.", "pkg.stats"),
+			NewMetricGauge("real_used", "Real used of PKG memory for main process.", "pkg.stats"),
+			NewMetricGauge("total_size", "Total size of PKG memory for main process.", "pkg.stats"),
+			NewMetricGauge("total_frags", "Total frags of main process.", "pkg.stats"),
+			NewMetricGauge("desc", "Description of wich process.", "pkg.stats"),
 		},
 		"tm.stats": {
 			NewMetricGauge("current", "Current transactions.", "tm.stats"),
