@@ -18,7 +18,7 @@ import (
 )
 
 /* Sample output
-kamcmd> mod.stats core all core pkg
+kamcmd> mod.stats core all
 Module: core
 {
         init_io_wait(507): 3880
@@ -213,7 +213,7 @@ var (
 
 	// implemented RPC methods
 	availableMethods = []string{
-		"mod.stats core all core all",
+		"mod.stats core all",
 		"tm.stats",
 		"sl.stats",
 		"core.shmmem",
