@@ -481,7 +481,6 @@ func (c *Collector) scrape(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-// scrapeMethod will return metrics for one method.
 func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error) {
 	records, err := c.fetchBINRPC(method)
 
@@ -500,7 +499,7 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 		return nil, err
 	}
 
-metrics := make(map[string][]MetricValue)
+	metrics := make(map[string][]MetricValue)
 
 switch method {
 	case "sl.stats", "pkg.stats", "tm.stats":
