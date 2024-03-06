@@ -709,5 +709,4 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		})
 		log.Printf("Starting Kamailio Exporter on %s...\n", *listenAddress)
 		log.Fatal(http.ListenAndServe(*listenAddress, nil))
-	}
 }
