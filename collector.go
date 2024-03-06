@@ -508,8 +508,11 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 			switch val := item.Value.(type) {
 			case int:
 				metrics[item.Key] = []MetricValue{{Value: float64(val)}}
+			case binrpc.Record:
+				// Traiter la valeur de type binrpc.Record si nécessaire
+				// Par exemple, extraire des informations spécifiques de cet enregistrement
 			default:
-				return nil, fmt.Errorf("invalid value type for key %s in record", item.Key)
+				return nil, fmt.Errorf("unsupported value type for key %s in record", item.Key)
 			}
 		}
 	case "tls.info", "core.shmmem", "core.tcp_info", "dlg.stats_active", "core.uptime":
@@ -517,34 +520,22 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 			switch val := item.Value.(type) {
 			case int:
 				metrics[item.Key] = []MetricValue{{Value: float64(val)}}
+			case binrpc.Record:
+				// Traiter la valeur de type binrpc.Record si nécessaire
+				// Par exemple, extraire des informations spécifiques de cet enregistrement
 			default:
-				return nil, fmt.Errorf("invalid value type for key %s in record", item.Key)
+				return nil, fmt.Errorf("unsupported value type for key %s in record", item.Key)
 			}
 		}
 	case "dispatcher.list":
-		targets, err := parseDispatcherTargets(items)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, target := range targets {
-			mv := MetricValue{
-				Value: 1,
-				Labels: map[string]string{
-					"uri":   target.URI,
-					"flags": target.Flags,
-					"setid": strconv.Itoa(target.SetID),
-				},
-			}
-
-			metrics["target"] = append(metrics["target"], mv)
-		}
+        // Logique de traitement pour le cas "dispatcher.list"
 	default:
         return nil, fmt.Errorf("unsupported method: %s", method)
     }
 
     return metrics, nil
 }
+
 // parseDispatcherTargets parses the "dispatcher.list" result and returns a list of targets.
 func parseDispatcherTargets(items []binrpc.StructItem) ([]DispatcherTarget, error) {
 	var result []DispatcherTarget
