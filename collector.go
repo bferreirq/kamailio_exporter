@@ -18,7 +18,7 @@ import (
 )
 
 /* Sample output
-kamcmd> mod.stats core pkg
+kamcmd> pkg.stats
 Module: core
 {
         init_io_wait(507): 3880
@@ -213,7 +213,7 @@ var (
 
 	// implemented RPC methods
 	availableMethods = []string{
-		"mod.stats core pkg",
+		"pkg.stats",
 		"tm.stats",
 		"sl.stats",
 		"core.shmmem",
@@ -225,8 +225,16 @@ var (
 	}
 
 	metricsList = map[string][]Metric{
-		"mod.stats core pkg": {
-			NewMetricGauge("Total", "Total used pkg memory for core module.", "mod.stats core pkg"),
+		"pkg.stats": {
+			NewMetricGauge("entry", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("pid", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("rank", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("used", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("free", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("real_used", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("total_size", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("total_frags", "Total used pkg memory for core module.", "pkg.stats"),
+			NewMetricGauge("desc", "Total used pkg memory for core module.", "pkg.stats"),
 		},
 		"tm.stats": {
 			NewMetricGauge("current", "Current transactions.", "tm.stats"),
@@ -504,7 +512,7 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	switch method {
 	case "sl.stats":
 		fallthrough
-	case "mod.stats core pkg":
+	case "pkg.stats":
 		fallthrough
 	case "tm.stats":
 		for _, item := range items {
