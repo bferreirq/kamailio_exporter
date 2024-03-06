@@ -18,7 +18,6 @@ import (
 )
 
 /* Sample output
-
 kamcmd> mod.stats core pkg
 Module: core
 {
@@ -214,7 +213,7 @@ var (
 
 	// implemented RPC methods
 	availableMethods = []string{
-		"mod.stats core pkg",
+		"mod.stats",
 		"tm.stats",
 		"sl.stats",
 		"core.shmmem",
