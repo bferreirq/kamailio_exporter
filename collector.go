@@ -20,84 +20,16 @@ import (
 /* Sample output
 
 kamcmd> pkg.stats
-Module: core
 {
-        init_io_wait(507): 3880
-        init_io_wait(459): 7752
-        init_modules(1066): 8
-        rpc_hash_add(162): 2048
-        cnt_hash_add(391): 2048
-        register_select_table(495): 32
-        add_callback(59): 312
-        sr_wtimer_init(372): 136
-        cfg_new_group(82): 568
-        cfg_declare(51): 3144
-        fix_sock_str(519): 320
-        fix_hostname(1757): 64
-        grp_hash_add(239): 696
-        init_dst_set(95): 32296
-        fix_socket_list(1961): 56
-        new_db_id(352): 176
-        sr_wtimer_add(394): 400
-        fix_param(1231): 144
-        db_do_init2(304): 64
-        dupl_string_name(77): 16
-        dupl_string(50): 56
-        mk_case_stm(4208): 64
-        mk_match_cond_table(99): 64
-        fix_param(1292): 88
-        route_new_list(195): 128
-        fix_match_rve(2982): 256
-        mk_rval_expr1(2623): 26040
-        pv_parse_format(1102): 1480
-        fix_param(1197): 2624
-        tr_new(1636): 192
-        yyparse(3170): 744
-        mk_rval_expr2(2684): 36456
-        pv_cache_add(334): 4352
-        mk_rval_expr_v(2542): 149120
-        mk_action(117): 41208
-        parse_params2(593): 336
-        set_mod_param_regex(165): 144
-        set_mod_param_regex(147): 56
-        mk_rval_expr_v(2555): 160
-        tr_table_add(1859): 520
-        register_module(264): 33992
-        subst_str(531): 200
-        register_module(246): 3616
-        pkg_str_dup(991): 272
-        ksr_locate_module(436): 1808
-        async_task_set_workers(248): 160
-        new_sock_info(306): 64
-        new_sock_info(300): 1600
-        yyparse(693): 112
-        yyparse(2196): 96
-        get_hdr_field(118): 240
-        parse_headers(328): 64
-        subst_parser(306): 224
-        subst_parser(296): 1008
-        subst_parser(278): 448
-        pp_subst_add(91): 168
-        sr_push_yy_state(1984): 32
-        sr_push_yy_state(1974): 16
-        addstr(1727): 46528
-        rpc_hash_add(112): 21800
-        str_hash_alloc(63): 512
-        pv_table_add(224): 20328
-        init_nonsip_hooks(41): 24
-        init_rlist(145): 56
-        route_add(124): 816
-        str_hash_alloc(63): 768
-        rval_get_str(1319): 1552
-        pp_define_set(2188): 240
-        str_list_block_add(76): 32
-        pp_define(2116): 688
-        pv_init_buffer(2029): 327680
-        pv_init_buffer(2021): 320
-        init_counters(125): 128
-        cnt_hash_add(335): 27312
-        str_hash_alloc(63): 1280
-        Total: 812432
+        entry: 0
+        pid: 12191
+        rank: 0
+        used: 810352
+        free: 132981176
+        real_used: 1236552
+        total_size: 134217728
+        total_frags: 6
+        desc: main process - attendant
 }
 kamcmd> tm.stats
 {
@@ -493,7 +425,7 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	// we expect just 1 record of type map
 	if len(records) == 2 && records[0].Type == binrpc.TypeInt && records[0].Value.(int) == 500 {
 		return nil, fmt.Errorf(`invalid response for method "%s": [500] %s`, method, records[1].Value.(string))
-	} else if len(records) != 1 && len(records) !=48 {
+	} else if len(records) != 1 || len(records) !=48 {
 		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d`,
 			method, 1, len(records),
 		)
