@@ -425,7 +425,7 @@ func (c *Collector) scrapeMethod(method string) (map[string][]MetricValue, error
 	// we expect just 1 record of type map
 	if len(records) == 2 && records[0].Type == binrpc.TypeInt && records[0].Value.(int) == 500 {
 		return nil, fmt.Errorf(`invalid response for method "%s": [500] %s`, method, records[1].Value.(string))
-	} else if len(records) != 1 && method != "pkg.stas" {
+	} else if len(records) != 1 || method != "pkg.stas" {
 		return nil, fmt.Errorf(`invalid response for method "%s", expected %d record, got %d`,
 			method, 1, len(records),
 		)
