@@ -687,11 +687,7 @@ func (c *Collector) fetchBINRPC(method string) ([]binrpc.Record, error) {
 	}
 
 	// Add by bferreira
-	cookie, err := binrpc.WritePacket(c.conn, "mod.stats", "core")
-	
-	if err != nil {
-		return nil, err
-	}
+	cookie, err := binrpc.WritePacket(c.conn, "mod.stats", "core", "pkg")
 
 	// the cookie is passed again for verification
 	// we receive records in response
