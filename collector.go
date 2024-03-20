@@ -15,7 +15,6 @@ import (
 
 	binrpc "github.com/florentchauveau/go-kamailio-binrpc/v3"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 /* Sample output
@@ -689,8 +688,7 @@ func (c *Collector) fetchBINRPC(method string) ([]binrpc.Record, error) {
 	// Add by bferreira
 	cookie, err := binrpc.WritePacket(conn, "mod.stats", "core", "pkg")
 	if err != nil {
-		log.Error("Cant not request mod.stats core pkg", err)
-		return
+		return nil, err
 	}
 
 	// the cookie is passed again for verification
