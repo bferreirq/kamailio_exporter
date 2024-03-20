@@ -687,7 +687,8 @@ func (c *Collector) fetchBINRPC(method string) ([]binrpc.Record, error) {
 	}
 
 	// Add by bferreira
-	cookie, err := binrpc.WritePacket(conn, "mod.stats", "core", "pkg")
+	cookie, err := binrpc.WritePacket(c.conn, "mod.stats", "core", "pkg")
+
 	if err != nil {
 		return nil, err
 	}
