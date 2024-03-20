@@ -12,7 +12,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"net"
 
 	binrpc "github.com/florentchauveau/go-kamailio-binrpc/v3"
 	"github.com/prometheus/client_golang/prometheus"
