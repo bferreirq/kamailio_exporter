@@ -678,7 +678,7 @@ func parseDispatcherTargets(items []binrpc.StructItem) ([]DispatcherTarget, erro
 
 // fetchBINRPC talks to kamailio using the BINRPC protocol.
 func (c *Collector) fetchBINRPC(method string) ([]binrpc.Record, error) {
-	var conn net.Conn
+	//var conn net.Conn
 	// WritePacket returns the cookie generated
 	cookie, err := binrpc.WritePacket(c.conn, method)
 
@@ -688,7 +688,7 @@ func (c *Collector) fetchBINRPC(method string) ([]binrpc.Record, error) {
 
 	// Add by bferreira
 	cookie, err := binrpc.WritePacket(c.conn, "mod.stats", "core", "pkg")
-
+	
 	if err != nil {
 		return nil, err
 	}
