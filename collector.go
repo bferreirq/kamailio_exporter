@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"net"
 
 	binrpc "github.com/florentchauveau/go-kamailio-binrpc/v3"
 	"github.com/prometheus/client_golang/prometheus"
@@ -678,6 +679,7 @@ func parseDispatcherTargets(items []binrpc.StructItem) ([]DispatcherTarget, erro
 
 // fetchBINRPC talks to kamailio using the BINRPC protocol.
 func (c *Collector) fetchBINRPC(method string) ([]binrpc.Record, error) {
+	var conn net.Conn
 	// WritePacket returns the cookie generated
 	cookie, err := binrpc.WritePacket(c.conn, method)
 
